@@ -1,4 +1,4 @@
-POM Renderer
+POM Editor
 ===
 
 POM Renderer is a simple web based interface for visualising and editing POM files. The interface is entirely in Javascript, there is no backend server except for a proxy used to get around CORS when reading pom.xml files.
@@ -45,4 +45,14 @@ You will need Nginx and Python installed.
  
 # ToDo
 
-* Poll or detect external changes to the original POM file and reflect the changes onscreen
+* Poll or detect external changes to the original POM file and reflect the changes onscreen.
+* Being able to detect XML structures like this. POM Editor cannot tell that this is an XML element that contains a list of Developer elements. I think this will require redoing the XML -> JSON serialization.
+
+```
+<developers>
+<developer>
+	...
+</developer>
+</developers>
+```
+
