@@ -79,11 +79,34 @@
   <script type="text/html" id="modelVersion">
     <div data-bind="template: {name: 'basicField'}"></div>
   </script>
-  
+  <script type="text/html" id="prerequisites">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="url">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="licenses">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="issueManagement">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
   <script type="text/html" id="artifactId">
     <div data-bind="template: {name: 'basicField'}"></div>
   </script>
     <script type="text/html" id="groupId">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="parent">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="description">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="scm">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  <script type="text/html" id="profiles">
     <div data-bind="template: {name: 'basicField'}"></div>
   </script>
   
@@ -104,6 +127,33 @@
         
       </script>
   
+
+  <script type="text/html" id="developers">
+  <h1 data-bind="text: name"></h1>
+
+   <div class="developers"
+      data-bind="template: {
+      foreach: item.developers,
+      name: 'developer',
+      afterAdd: $root.refresh('.developers')
+      }"> 
+      </div>
+      <div data-bind="template: 
+      {
+      name: 'addButton',
+      data: {
+        name: 'Add Developer', item: item
+      }
+    }"></div>
+  </script>
+  
+  <script type="text/html" id="developer">
+  <div class="block card">
+    <div data-bind="template: {name: 'basicField', data: {name: 'name', item: name}}"></div>
+    <div data-bind="template: {name: 'basicField', data: {name: 'email', item: email}}"></div>
+  </div>
+  </script>
+
   <script type="text/html" id="plugins">
   <h1 data-bind="text: name"></h1>
    <div class="plugins"
@@ -121,7 +171,7 @@
       }
     }"></div>
   </script>
-  
+
     <script type="text/html" id="plugin">
     <div class="plugin-block">
 
@@ -140,11 +190,9 @@
   
       <script type="text/html" id="dependency">
 
-          <div class="groupId" data-bind="template: {name: 'boxOnly', data: {name: 'groupId', item: groupId}}, css: 'groupId'"></div>
-  <div data-bind="template: {name: 'boxOnly', data: {name: 'version', item: version}}, css: 'version'">
-    </div>          
-  <span data-bind="template: {name: 'boxOnly', data: {name: 'artifactId', item: artifactId}}, css: 'artifact'">
-  </span>
+  <div class="groupId" data-bind="template: {name: 'boxOnly', data: {name: 'groupId', item: groupId}}, css: 'groupId'"></div>
+  <div data-bind="template: {name: 'boxOnly', data: {name: 'version', item: version}}, css: 'version'"></div>
+  <span data-bind="template: {name: 'boxOnly', data: {name: 'artifactId', item: artifactId}}, css: 'artifact'"></span>
       </script>
   
 
@@ -179,10 +227,11 @@ function props(item) {
    item = ko.toJS(item); 
         console.log(item);
   }
+
   if (!_.isObject(item)) {
    return []; 
   }
-  return _.keys(item);
+  return _.without(_.keys(item), "add");
 }
 
 $.get("http://localhost:9001/pom.xml", function(data) {
@@ -247,6 +296,7 @@ $.get("http://localhost:9001/pom.xml", function(data) {
       listsyncer(tree, source, item);
       } else {
         func(tree, source, item, parent);
+        listsyncer(tree, source, item);
       }
       
     });
@@ -284,6 +334,7 @@ $.get("http://localhost:9001/pom.xml", function(data) {
     var destModel = getter.call(projectModel);
     copyNode(xml, destModel);
   };
+  console.log(projectModel);
   
   function copyNode(xml, destModel) {
     console.log(xml, xml.containerNode, xml[0], xml[1], xml[0].containerNode);
@@ -310,7 +361,7 @@ $.get("http://localhost:9001/pom.xml", function(data) {
     };
   };
   ko.applyBindings(projectModel);
-  console.log(projectModel.project.build.plugins()[0].configuration.source());
+  // console.log(projectModel.project.build.plugins()[0].configuration.source());
   // projectModel.project.groupId("pom name");
   // projectModel.project.artifactId("component");
   
@@ -332,14 +383,14 @@ $.get("http://localhost:9001/pom.xml", function(data) {
       duration: 400
     }};
   $('.plugins').masonry(pluginConfig);
-    
   $('.dependencies').masonry(masonryConfig);
+  $('.developers').masonry(masonryConfig);
 
 });
   
   
   
-  projectModel.project.groupId("pom name");
+  // projectModel.project.groupId("pom name");
   // console.log(projectModel.project.properties["repo.server"]("sam"));
  
     });

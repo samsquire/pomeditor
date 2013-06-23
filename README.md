@@ -1,7 +1,12 @@
 POM Renderer
 ===
 
-POM Renderer is an interface for visualising and editing POM files.
+POM Renderer is a simple web based interface for visualising and editing POM files. The interface is entirely in Javascript, there is no backend server except for a proxy used to get around CORS when reading pom.xml files.
+
+The template for any XML element can be customized.
+
+![Dropwizard project dependencies](screenshot.png "Dropwizard project dependencies")
+
 
 # Libraries Used
 
@@ -21,8 +26,22 @@ POM Renderer is an interface for visualising and editing POM files.
  * **Rendering** The Knockout `template` binding is used dynamically to walk the project model.
  * jQuery Masonry lines each element in a grid.
  * Exporting the updated POM can be done with `XMLSerializer`.
- * **Adding New Content** Adding new content to the POM (such as dependencies or plugins) is accomplished by cloning XML fragments and using the same JSON conversion and mapping in the same process above. Since every Knockout template knows what object it is rendering and can access the 
+ * **Adding New Content** Adding new content to the POM (such as dependencies or plugins) is accomplished by cloning XML fragments and using the same JSON conversion and mapping in the same process above. 
+ 
+# Setup
 
+You will need Nginx and Python installed.
+
+1. Clone and change to the repository.
+1. Link the nginx config file. `ln -s $(pwd)/pomeditor.conf /usr/local/etc/nginx/pomeditor.conf`
+1. Run `nginx -c /usr/local/etc/nginx/pomeditor.conf`
+1. Start nginx with `nginx`
+
+# Usage
+
+1. Go to a directory with a pom in it and run `python -mSimpleHTTPServer 8001`
+2. Go to http://localhost:9001/
+3. You will now see the POM file. If you change it, the updated XML will appear on the Javascript console.
  
 # ToDo
 
