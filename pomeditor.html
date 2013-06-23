@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="underscore-min.js"></script>
+<script src="knockout-2.2.1.js"></script>
+<script src="knockout.js"></script>
+<script src="jquery-1.9.1.min.js"></script>
+<script src="jquery.masonry.min.js"></script>
+<meta charset=utf-8 />
+<title>Maven Renderer</title>
+
+<style id="jsbin-css">
+
+
+.block {
+
+}
+.configs {
+  clear: both;
+}
+.plugin-block {
+  width: 250px;
+  height: 200px;
+  border: 1px solid black;
+}
+.plugin-block .card {
+  float: right;
+}
+
+.card {
+ width: 200px;
+ height: 100px;
+ border: 1px solid black;
+ margin: 3px;    
+}
+
+.version input {
+  border-style: none;  
+  border: 1px solid black;
+  font-size: 25pt;
+  float: right;
+  right: 0px;
+  clear: both;
+  max-width: 70%;
+  text-align: right;
+}
+
+.artifact input {
+  bottom: 0px;
+  float: left;
+  font-size: 15pt;
+  width: 95%;
+  margin: 0;
+  padding: 0;
+}
+.groupId {
+  clear: both;
+}
+</style>
+</head>
+<body>
+  
+  <script type="text/html" id="addButton">
+  <button id="panel" data-bind="text: name, click: function() { console.log(item); item.add() }"></button>
+  </script>
+  
+  <script type="text/html" id="basicField">
+<label data-bind="text: name, attr: {for: name}">
+  </label>
+    <input type="text" data-bind="value: item, attr: {id: name}"></input>
+  </script>
+  
+  <script type="text/html" id="boxOnly">
+    <input type="text" data-bind="value: item">
+      
+    </input>
+  </script>
+  
+  <script type="text/html" id="modelVersion">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  
+  <script type="text/html" id="artifactId">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+    <script type="text/html" id="groupId">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  
+  <script type="text/html" id="packaging">
+    <div data-bind="template: {name: 'basicField'}"></div>
+  </script>
+  
+  <script type="text/html" id="name"></script>
+    <script type="text/html" id="version"></script>
+    <script type="text/html" id="properties"></script>
+      <script type="text/html" id="repositories"></script>
+      <script type="text/html" id="pluginRepositories"></script>
+      <script type="text/html" id="modules"></script>
+      <script type="text/html" id="build">
+        <div id="plugins"
+      data-bind="template: {data: {item: item, name: 'plugins'}, name: 'plugins'}"> 
+      </div>
+        
+      </script>
+  
+  <script type="text/html" id="plugins">
+  <h1 data-bind="text: name"></h1>
+   <div class="plugins"
+      data-bind="template: {
+      foreach: item.plugins,
+      name: 'plugin',
+      afterAdd: $root.refresh('.plugins')
+      }"> 
+      </div>
+      <div data-bind="template: 
+      {
+      name: 'addButton',
+      data: {
+        name: 'Add Plugin', item: item
+      }
+    }"></div>
+  </script>
+  
+    <script type="text/html" id="plugin">
+    <div class="plugin-block">
+
+    <div class="card" data-bind="template: {name: 'dependency', data: $data}"></div>
+    
+    <!-- /ko if: $data.configuration -->
+<div class="configs" data-bind="foreach: {data: props($data.configuration), as: 'setting'}">
+      <div data-bind="template: {name: 'basicField', data: {item: $parent.configuration[setting], name: setting}}"></div>
+
+    </div>
+    <!-- /ko -->
+    
+  </div>
+  </script>
+  
+  
+      <script type="text/html" id="dependency">
+
+          <div class="groupId" data-bind="template: {name: 'boxOnly', data: {name: 'groupId', item: groupId}}, css: 'groupId'"></div>
+  <div data-bind="template: {name: 'boxOnly', data: {name: 'version', item: version}}, css: 'version'">
+    </div>          
+  <span data-bind="template: {name: 'boxOnly', data: {name: 'artifactId', item: artifactId}}, css: 'artifact'">
+  </span>
+      </script>
+  
+
+  
+      <script type="text/html" id="dependencies">
+      <h1 data-bind="text: name"></h1>
+      <div class="dependencies"
+      data-bind="foreach: {data: item, as: 'dependency', name: 'dependency', afterAdd: $root.refresh('.dependencies')}">
+        <div class="block card">
+          <div data-bind="template: {name: 'dependency', data: dependency}"></div>
+        </div>
+      </div>
+      <div data-bind="template: {name: 'addButton', data: {name: 'Add Dependency', item: $root.project }}"></div>
+        
+      </script>
+      <script type="text/html" id="distributionManagement"></script>
+  <div id="project" data-bind="foreach: {
+data: props(project),
+as: 'item'
+}">
+  <div data-bind="template: {
+name: item,
+data: {name: item, item: $root.project[item]}
+}"></div>
+</div>
+  
+
+<script>
+function props(item) {
+  if (ko.isObservable(item)) {
+
+   item = ko.toJS(item); 
+        console.log(item);
+  }
+  if (!_.isObject(item)) {
+   return []; 
+  }
+  return _.keys(item);
+}
+
+$.get("http://localhost:9001/pom.xml", function(data) {
+  console.log(data);
+  function objectify(node, par, extraction, circle) {
+    var item = {};
+    me = node.tagName;
+
+    $(node).children().each(function() {
+      var tag = this.tagName;
+      if ($(this).children().length === 0) {
+        item[tag] = extraction.call(this);
+        return;
+      }
+      var created;
+      if (item[tag] && item[tag].length) {
+        created = objectify(this, item, extraction, circle);
+        item[tag].push(created);
+      } else if (!item[tag]) {
+        created = objectify(this, item, extraction, circle);
+        item[tag] = created;
+      } else { // if it exists and it is not a list
+        created = objectify(this, item, extraction, circle);
+        item[tag] = [item[tag], created];
+      }
+      if (circle) { 
+          created.containerNode = this;
+      }
+    });  
+    var distinct = Object.keys(item);
+    if (distinct.length == 1 && item[distinct[0]].length && !item[distinct[0]].collapsed) {
+      // item[distinct[0]].containerNode = node;
+      item[distinct[0]].collapsed = true;
+      return item[distinct[0]];
+    } else {
+      return item;
+    }
+  }
+
+  function textNodes() {
+   return $(this).text();
+  }
+  function identityNodes() {
+    return this;
+  }
+  
+  var project = objectify(data, 'project', textNodes);
+  var nodes = objectify(data, 'project', identityNodes, true);
+  
+  function applytree(tree, structure, source, func, listfunc) {
+    var keys = Object.keys(structure);
+    if (!parent) { parent = tree; }
+    keys.forEach(function(item) {
+      if (tree[item].constructor.name == "Object") {
+        applytree(tree[item], structure[item], source[item], func, tree);
+      } else if (tree[item]().constructor.name == "Array") {
+        
+          tree[item]().forEach(function(subitem, index) {
+      applytree(subitem,
+                    structure[item][index], source[item][index], func, tree);
+          });
+      listsyncer(tree, source, item);
+      } else {
+        func(tree, source, item, parent);
+      }
+      
+    });
+  }
+
+  var serializer = new XMLSerializer();
+  projectModel = ko.mapping.fromJS(project);
+  function syncer(target, source, name) {
+
+    if (ko.isObservable(target[name])) {
+      // console.log("Found observable", name, target[name]);
+
+      target[name].subscribe(function(updated) {
+
+        $(source[name]).text(updated);
+        
+         console.log(serializer.serializeToString(data));
+         console.log("updated", updated, source[name]);
+      });
+    }
+  }
+  
+  applytree(projectModel, project, nodes, syncer, listsyncer);
+  
+  function listsyncer(target, source, name) {
+    console.log("Added add to ", name);
+    target.add = function () {
+        console.log("Add attempt to", name);
+        copyNode(source[name], target[name]);
+      };
+  }
+  
+  projectModel.oldAdd = function (getter) {
+    var xml = getter.call(nodes);
+    var destModel = getter.call(projectModel);
+    copyNode(xml, destModel);
+  };
+  
+  function copyNode(xml, destModel) {
+    console.log(xml, xml.containerNode, xml[0], xml[1], xml[0].containerNode);
+    var parent = $(xml.containerNode);
+    var cloned = $(xml[0].containerNode).clone();
+    parent.append(cloned);
+    xml.push(cloned);
+    cloned.children().each(function (key, child) {
+      $(child).text("");
+    });
+    var clonedTree = objectify(cloned, 'dependencies', identityNodes, true);
+    
+    var newModel = objectify(cloned, 'dependencies', textNodes);
+    var wrapped = ko.mapping.fromJS(newModel);
+    console.log(newModel, wrapped);
+    applytree(wrapped, newModel, clonedTree, syncer);
+    destModel.push(wrapped);
+  }
+  
+
+  projectModel.refresh = function (container) {
+    return function (element, index, data) {
+        $(container).masonry('appended', $(element));
+    };
+  };
+  ko.applyBindings(projectModel);
+  console.log(projectModel.project.build.plugins()[0].configuration.source());
+  // projectModel.project.groupId("pom name");
+  // projectModel.project.artifactId("component");
+  
+  $(function() {
+    masonryConfig = {
+    itemSelector : '.block',
+    columnWidth : 10, 
+    isFitWidth: true,
+    isAnimated: true,
+    animationOptions: {
+      duration: 400
+    }};
+    pluginConfig = {
+    itemSelector : '.plugin-block',
+    columnWidth : 10, 
+    isFitWidth: true,
+    isAnimated: true,
+    animationOptions: {
+      duration: 400
+    }};
+  $('.plugins').masonry(pluginConfig);
+    
+  $('.dependencies').masonry(masonryConfig);
+
+});
+  
+  
+  
+  projectModel.project.groupId("pom name");
+  // console.log(projectModel.project.properties["repo.server"]("sam"));
+ 
+    });
+</script>
+</body>
+</html>
