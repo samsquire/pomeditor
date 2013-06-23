@@ -1,7 +1,7 @@
 POM Editor
 ===
 
-POM Renderer is a simple web based interface for visualising and editing POM files. The interface is entirely in Javascript, there is no backend server except for a proxy used to get around CORS when reading pom.xml files.
+POM Editor is a simple web based interface for visualising and editing POM files. The interface is entirely in Javascript, there is no backend server except for a proxy used to get around CORS when reading pom.xml files.
 
 The template for any XML element can be customized.
 
