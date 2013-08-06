@@ -31,11 +31,11 @@
  width: 200px;
  height: 100px;
  border: 1px solid black;
- margin: 3px;    
+ margin: 3px;
 }
 
 .version input {
-  border-style: none;  
+  border-style: none;
   border: 1px solid black;
   font-size: 25pt;
   float: right;
@@ -59,23 +59,23 @@
 </style>
 </head>
 <body>
-  
+
   <script type="text/html" id="addButton">
   <button id="panel" data-bind="text: name, click: function() { console.log(item); item.add() }"></button>
   </script>
-  
+
   <script type="text/html" id="basicField">
 <label data-bind="text: name, attr: {for: name}">
   </label>
-    <input type="text" data-bind="value: item, attr: {id: name}"></input>
+    <input type="text" data-bind="value: item, attr: {id: name}">
   </script>
-  
+
   <script type="text/html" id="boxOnly">
     <input type="text" data-bind="value: item">
-      
+
     </input>
   </script>
-  
+
   <script type="text/html" id="modelVersion">
     <div data-bind="template: {name: 'basicField'}"></div>
   </script>
@@ -109,11 +109,11 @@
   <script type="text/html" id="profiles">
     <div data-bind="template: {name: 'basicField'}"></div>
   </script>
-  
+
   <script type="text/html" id="packaging">
     <div data-bind="template: {name: 'basicField'}"></div>
   </script>
-  
+
   <script type="text/html" id="name"></script>
     <script type="text/html" id="version"></script>
     <script type="text/html" id="properties"></script>
@@ -121,12 +121,12 @@
       <script type="text/html" id="pluginRepositories"></script>
       <script type="text/html" id="modules"></script>
       <script type="text/html" id="build">
-        <div id="plugins"
-      data-bind="template: {data: {item: item, name: 'plugins'}, name: 'plugins'}"> 
+        <div id="buildplugins"
+      data-bind="template: {data: {item: item, name: 'plugins'}, name: 'plugins'}">
       </div>
-        
+
       </script>
-  
+
 
   <script type="text/html" id="developers">
   <h1 data-bind="text: name"></h1>
@@ -136,9 +136,9 @@
       foreach: item.developers,
       name: 'developer',
       afterAdd: $root.refresh('.developers')
-      }"> 
+      }">
       </div>
-      <div data-bind="template: 
+      <div data-bind="template:
       {
       name: 'addButton',
       data: {
@@ -146,7 +146,7 @@
       }
     }"></div>
   </script>
-  
+
   <script type="text/html" id="developer">
   <div class="block card">
     <div data-bind="template: {name: 'basicField', data: {name: 'name', item: name}}"></div>
@@ -161,9 +161,9 @@
       foreach: item.plugins,
       name: 'plugin',
       afterAdd: $root.refresh('.plugins')
-      }"> 
+      }">
       </div>
-      <div data-bind="template: 
+      <div data-bind="template:
       {
       name: 'addButton',
       data: {
@@ -176,27 +176,27 @@
     <div class="plugin-block">
 
     <div class="card" data-bind="template: {name: 'dependency', data: $data}"></div>
-    
+
     <!-- /ko if: $data.configuration -->
 <div class="configs" data-bind="foreach: {data: props($data.configuration), as: 'setting'}">
       <div data-bind="template: {name: 'basicField', data: {item: $parent.configuration[setting], name: setting}}"></div>
 
     </div>
     <!-- /ko -->
-    
+
   </div>
   </script>
-  
-  
+
+
       <script type="text/html" id="dependency">
 
   <div class="groupId" data-bind="template: {name: 'boxOnly', data: {name: 'groupId', item: groupId}}, css: 'groupId'"></div>
   <div data-bind="template: {name: 'boxOnly', data: {name: 'version', item: version}}, css: 'version'"></div>
   <span data-bind="template: {name: 'boxOnly', data: {name: 'artifactId', item: artifactId}}, css: 'artifact'"></span>
       </script>
-  
 
-  
+
+
       <script type="text/html" id="dependencies">
       <h1 data-bind="text: name"></h1>
       <div class="dependencies"
@@ -206,7 +206,7 @@
         </div>
       </div>
       <div data-bind="template: {name: 'addButton', data: {name: 'Add Dependency', item: $root.project }}"></div>
-        
+
       </script>
       <script type="text/html" id="distributionManagement"></script>
   <div id="project" data-bind="foreach: {
@@ -218,18 +218,18 @@ name: item,
 data: {name: item, item: $root.project[item]}
 }"></div>
 </div>
-  
+
 
 <script>
 function props(item) {
   if (ko.isObservable(item)) {
 
-   item = ko.toJS(item); 
+   item = ko.toJS(item);
         console.log(item);
   }
 
   if (!_.isObject(item)) {
-   return []; 
+   return [];
   }
   return _.without(_.keys(item), "add");
 }
@@ -257,10 +257,10 @@ $.get("http://localhost:9001/pom.xml", function(data) {
         created = objectify(this, item, extraction, circle);
         item[tag] = [item[tag], created];
       }
-      if (circle) { 
+      if (circle) {
           created.containerNode = this;
       }
-    });  
+    });
     var distinct = Object.keys(item);
     if (distinct.length == 1 && item[distinct[0]].length && !item[distinct[0]].collapsed) {
       // item[distinct[0]].containerNode = node;
@@ -277,10 +277,10 @@ $.get("http://localhost:9001/pom.xml", function(data) {
   function identityNodes() {
     return this;
   }
-  
+
   var project = objectify(data, 'project', textNodes);
   var nodes = objectify(data, 'project', identityNodes, true);
-  
+
   function applytree(tree, structure, source, func, listfunc) {
     var keys = Object.keys(structure);
     if (!parent) { parent = tree; }
@@ -288,7 +288,7 @@ $.get("http://localhost:9001/pom.xml", function(data) {
       if (tree[item].constructor.name == "Object") {
         applytree(tree[item], structure[item], source[item], func, tree);
       } else if (tree[item]().constructor.name == "Array") {
-        
+
           tree[item]().forEach(function(subitem, index) {
       applytree(subitem,
                     structure[item][index], source[item][index], func, tree);
@@ -298,7 +298,7 @@ $.get("http://localhost:9001/pom.xml", function(data) {
         func(tree, source, item, parent);
         listsyncer(tree, source, item);
       }
-      
+
     });
   }
 
@@ -312,15 +312,15 @@ $.get("http://localhost:9001/pom.xml", function(data) {
       target[name].subscribe(function(updated) {
 
         $(source[name]).text(updated);
-        
+
          console.log(serializer.serializeToString(data));
          console.log("updated", updated, source[name]);
       });
     }
   }
-  
+
   applytree(projectModel, project, nodes, syncer, listsyncer);
-  
+
   function listsyncer(target, source, name) {
     console.log("Added add to ", name);
     target.add = function () {
@@ -328,14 +328,14 @@ $.get("http://localhost:9001/pom.xml", function(data) {
         copyNode(source[name], target[name]);
       };
   }
-  
+
   projectModel.oldAdd = function (getter) {
     var xml = getter.call(nodes);
     var destModel = getter.call(projectModel);
     copyNode(xml, destModel);
   };
   console.log(projectModel);
-  
+
   function copyNode(xml, destModel) {
     console.log(xml, xml.containerNode, xml[0], xml[1], xml[0].containerNode);
     var parent = $(xml.containerNode);
@@ -346,14 +346,14 @@ $.get("http://localhost:9001/pom.xml", function(data) {
       $(child).text("");
     });
     var clonedTree = objectify(cloned, 'dependencies', identityNodes, true);
-    
+
     var newModel = objectify(cloned, 'dependencies', textNodes);
     var wrapped = ko.mapping.fromJS(newModel);
     console.log(newModel, wrapped);
     applytree(wrapped, newModel, clonedTree, syncer);
     destModel.push(wrapped);
   }
-  
+
 
   projectModel.refresh = function (container) {
     return function (element, index, data) {
@@ -364,11 +364,11 @@ $.get("http://localhost:9001/pom.xml", function(data) {
   // console.log(projectModel.project.build.plugins()[0].configuration.source());
   // projectModel.project.groupId("pom name");
   // projectModel.project.artifactId("component");
-  
+
   $(function() {
     masonryConfig = {
     itemSelector : '.block',
-    columnWidth : 10, 
+    columnWidth : 10,
     isFitWidth: true,
     isAnimated: true,
     animationOptions: {
@@ -376,7 +376,7 @@ $.get("http://localhost:9001/pom.xml", function(data) {
     }};
     pluginConfig = {
     itemSelector : '.plugin-block',
-    columnWidth : 10, 
+    columnWidth : 10,
     isFitWidth: true,
     isAnimated: true,
     animationOptions: {
@@ -387,12 +387,12 @@ $.get("http://localhost:9001/pom.xml", function(data) {
   $('.developers').masonry(masonryConfig);
 
 });
-  
-  
-  
+
+
+
   // projectModel.project.groupId("pom name");
   // console.log(projectModel.project.properties["repo.server"]("sam"));
- 
+
     });
 </script>
 </body>
